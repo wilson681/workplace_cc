@@ -34,8 +34,13 @@ async function addFiles(fileList) {
   const files = [...fileList];
   if (!files.length) return;
   setBusy(true);
-  try {
-    for (const file of files) {
+  const before = pages.length;
+  const skipped = [];
+
+  // Each file is handled independently: one password-protected or corrupt PDF
+  // must not abort the whole batch.
+  for (const file of files) {
+    try {
       const bytes = new Uint8Array(await file.arrayBuffer());
       const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
       if (isPdf) {
@@ -43,14 +48,23 @@ async function addFiles(fileList) {
       } else if (file.type.startsWith('image/')) {
         addImage(file, bytes);
       } else {
-        setStatus(`Skipped "${file.name}" — not a PDF or image.`, 'warn');
+        skipped.push(`${file.name} (not a PDF or image)`);
       }
+    } catch (err) {
+      skipped.push(`${file.name} (${err.message})`);
     }
-    render();
-  } catch (err) {
-    setStatus(`Could not add files: ${err.message}`, 'err');
-  } finally {
-    setBusy(false);
+  }
+
+  render();
+  setBusy(false);
+
+  const added = pages.length - before;
+  if (skipped.length && added) {
+    setStatus(`Added ${added} page${added === 1 ? '' : 's'}. Skipped ${skipped.join('; ')}.`, 'warn');
+  } else if (skipped.length) {
+    setStatus(`Couldn't add ${skipped.join('; ')}.`, 'err');
+  } else if (added) {
+    setStatus(`Added ${added} page${added === 1 ? '' : 's'} — nothing left your device.`, 'ok');
   }
 }
 

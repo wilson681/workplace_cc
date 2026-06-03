@@ -120,3 +120,9 @@ test('splitToPages returns one single-page PDF per page', async () => {
   // first part keeps the first page's width
   assert.equal((await describe(parts[0]))[0][0], 110);
 });
+
+test('unreadable bytes fail with a friendly error rather than a cryptic one', async () => {
+  const garbage = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]);
+  await assert.rejects(() => getPageCount(garbage), /could not read PDF/);
+  await assert.rejects(() => mergePdfs([garbage]), /could not read PDF/);
+});
