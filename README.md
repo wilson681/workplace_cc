@@ -16,7 +16,7 @@ engine runs headless in Node (with tests proving it learns) and in the browser
 > rotate / delete pages, images → PDF — your files never leave your device), with its own README,
 > tests and end-to-end verification.
 
-![NeuroCreatures in action](docs/screenshot.png)
+![NeuroCreatures evolving](docs/demo.gif)
 
 > Gold line = best forager per generation, teal = population average. They climb
 > because evolution is working: random brains eat ~3 food items per life; after

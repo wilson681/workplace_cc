@@ -3,7 +3,7 @@
 **Merge, organise, rotate and delete PDF pages — and turn images into PDFs — entirely in your browser.**
 Your files are never uploaded. There is no server. It even works offline.
 
-![PocketPDF](docs/screenshot.png)
+![PocketPDF demo](docs/demo.gif)
 
 Drop in several PDFs and images, and every page becomes a thumbnail you can drag to reorder,
 rotate, or delete. Hit **Download** and PocketPDF assembles a fresh PDF — all in your browser tab,
