@@ -221,20 +221,19 @@ h1 {
   transform: scale(0.97);
 }
 .btn-primary {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.13));
-  color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 6px 18px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #7ff3e1, var(--teal));
+  color: #03241e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 18px rgba(94, 234, 212, 0.32);
 }
 .btn-primary:hover {
-  filter: brightness(1.12);
+  filter: brightness(1.06);
 }
 .speed.active {
-  color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 16px rgba(255, 255, 255, 0.14);
+  color: var(--teal);
+  box-shadow: inset 0 0 0 1px var(--teal), 0 0 16px rgba(94, 234, 212, 0.22);
 }
 :focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.5);
+  outline: 3px solid rgba(94, 234, 212, 0.55);
   outline-offset: 2px;
 }
 
@@ -328,7 +327,7 @@ h1 {
   color: var(--muted);
 }
 .slider em {
-  color: var(--ink);
+  color: var(--teal);
   font-style: normal;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -336,7 +335,7 @@ h1 {
 .slider input {
   width: 100%;
   margin-top: 10px;
-  accent-color: #e6edf3;
+  accent-color: var(--teal);
 }
 
 .hint {
