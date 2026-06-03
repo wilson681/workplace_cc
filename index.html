@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>workplace_cc — two tiny apps that run in your browser</title>
+    <meta
+      name="description"
+      content="Two zero-backend browser apps: PocketPDF (merge & organise PDFs privately) and NeuroCreatures (evolving neural-network foragers)."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E"
+    />
+    <style>
+      @font-face {
+        font-family: "Inter Variable";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url("fonts/Inter-variable.woff2") format("woff2");
+      }
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        --font: "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --ink: #1d1d1f;
+        --muted: #6e6e73;
+        --line: rgba(0, 0, 0, 0.09);
+        --spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        font-family: var(--font);
+        color: var(--ink);
+        letter-spacing: -0.012em;
+        -webkit-font-smoothing: antialiased;
+        background: radial-gradient(1100px 700px at 80% -10%, #eef2ff 0%, transparent 60%),
+          radial-gradient(900px 600px at -5% 110%, #fdeeed 0%, transparent 55%),
+          linear-gradient(180deg, #fbfbfd, #f1f2f5);
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 7vh 22px 40px;
+      }
+      .hero {
+        text-align: center;
+        max-width: 620px;
+      }
+      .eyebrow {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      h1 {
+        margin: 10px 0 12px;
+        font-size: clamp(30px, 6vw, 46px);
+        font-weight: 680;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+      }
+      .lede {
+        margin: 0 auto;
+        max-width: 520px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.55;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        width: 100%;
+        max-width: 760px;
+        margin: 42px 0 0;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.62);
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 0 1.5px var(--line),
+          0 1px 1px rgba(0, 0, 0, 0.04), 0 14px 40px rgba(0, 0, 0, 0.08);
+        transition: transform 0.25s var(--spring), box-shadow 0.25s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.85), inset 0 0 0 1.5px var(--line),
+          0 2px 6px rgba(0, 0, 0, 0.06), 0 26px 60px rgba(0, 0, 0, 0.13);
+      }
+      .icon {
+        width: 56px;
+        height: 56px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        color: #fff;
+      }
+      .icon svg {
+        width: 32px;
+        height: 32px;
+      }
+      .icon.pdf {
+        background: linear-gradient(155deg, #f5685e, #e0322a 60%, #b41d15);
+        box-shadow: 0 6px 16px rgba(199, 38, 30, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+      .icon.neuro {
+        color: #03241e;
+        background: linear-gradient(155deg, #7ff3e1, #5eead4 45%, #18b6a2);
+        box-shadow: 0 6px 16px rgba(94, 234, 212, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      }
+      .card h2 {
+        margin: 18px 0 6px;
+        font-size: 21px;
+        font-weight: 620;
+        letter-spacing: -0.02em;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+        flex: 1;
+      }
+      .open {
+        margin-top: 18px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .open .arrow {
+        transition: transform 0.2s var(--spring);
+      }
+      .card:hover .open .arrow {
+        transform: translateX(4px);
+      }
+      .tag {
+        display: inline-block;
+        margin-top: 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      footer {
+        margin-top: 40px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      footer a {
+        color: var(--ink);
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid var(--line);
+      }
+      @media (max-width: 560px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <div class="eyebrow">runs 100% in your browser · no backend</div>
+      <h1>Two tiny apps,<br />nothing leaves your device.</h1>
+      <p class="lede">
+        Both are zero-dependency, offline-capable and open source — pick one to open it.
+      </p>
+    </div>
+
+    <div class="cards">
+      <a class="card" href="pocketpdf/web/">
+        <span class="icon pdf" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M6.5 2.75h6.7L18.5 8v12.25a1.75 1.75 0 0 1-1.75 1.75H6.5a1.75 1.75 0 0 1-1.75-1.75V4.5A1.75 1.75 0 0 1 6.5 2.75Z" fill="#ffffff" />
+            <path d="M13.2 2.75 18.5 8h-4.05a1.25 1.25 0 0 1-1.25-1.25V2.75Z" fill="#ffd2ce" />
+            <text x="11.5" y="17.4" text-anchor="middle" font-size="6" font-weight="800" letter-spacing="-0.3" fill="#e0322a">PDF</text>
+          </svg>
+        </span>
+        <h2>PocketPDF</h2>
+        <p>Merge, reorder, rotate and delete PDF pages, and turn images into PDFs — privately. Your files never get uploaded.</p>
+        <span class="tag">🔒 100% on your device</span>
+        <span class="open">Open <span class="arrow">→</span></span>
+      </a>
+
+      <a class="card" href="web/">
+        <span class="icon neuro" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.6 20 7v10l-8 4.4L4 17V7z" fill="rgba(255,255,255,.3)" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            <circle cx="12" cy="12" r="2.3" fill="currentColor" />
+            <path d="M12 9.7V7M12 14.3V17M14 10.8l2-1.2M8 13.2l-2 1.2M14 13.2l2 1.2M8 10.8 6 9.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2>NeuroCreatures</h2>
+        <p>Watch creatures with neural-network brains evolve, generation by generation, to forage for food — live on a canvas.</p>
+        <span class="tag">🧬 evolves in real time</span>
+        <span class="open">Open <span class="arrow">→</span></span>
+      </a>
+    </div>
+
+    <footer>
+      source on <a href="https://github.com/wilson681/workplace_cc" target="_blank" rel="noreferrer">GitHub</a>
+    </footer>
+  </body>
+</html>

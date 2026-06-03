@@ -22,15 +22,17 @@ const MIME = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.png': 'image/png',
+  '.woff2': 'font/woff2',
 };
 
 const server = createServer(async (req, res) => {
   try {
     let urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
 
-    // Send the bare host (and /web) to /web/ so the document URL ends in a
-    // slash; otherwise the page's relative module imports resolve wrong.
-    if (urlPath === '/' || urlPath === '/web') {
+    // /web (no trailing slash) → /web/ so the app's relative module imports
+    // resolve against a slash-terminated URL. "/" falls through to the landing
+    // page (index.html at the repo root), matching how GitHub Pages serves it.
+    if (urlPath === '/web') {
       res.writeHead(302, { Location: '/web/' }).end();
       return;
     }
