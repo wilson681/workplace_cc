@@ -20,7 +20,13 @@
   <body>
     <header class="topbar">
       <div class="brand">
-        <span class="logo">📄</span>
+        <span class="app-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="rgba(255,255,255,.22)" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M8.5 13h7M8.5 16.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </span>
         <div>
           <strong>PocketPDF</strong>
           <span class="sub">merge &amp; organise PDFs — privately</span>
@@ -32,24 +38,38 @@
     </header>
 
     <div class="toolbar">
-      <label class="btn btn-ghost" for="file-input">＋ Add PDFs / images</label>
+      <label class="btn btn-ghost" for="file-input">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+        Add files
+      </label>
       <input id="file-input" type="file" accept="application/pdf,image/*" multiple hidden />
       <span id="count" class="count" aria-live="polite">no pages yet</span>
       <span class="spacer"></span>
       <button id="clear" class="btn btn-ghost" disabled>Clear</button>
-      <button id="download" class="btn btn-primary" disabled>⬇ Download PDF</button>
+      <button id="download" class="btn btn-primary" disabled>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Download PDF
+      </button>
     </div>
 
     <main id="main">
-      <section id="dropzone" class="dropzone">
+      <label id="dropzone" class="dropzone" for="file-input">
         <div class="dz-inner">
-          <div class="dz-icon">📥</div>
+          <div class="dz-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M5 15v2.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </div>
           <h2>Drop PDFs or images here</h2>
-          <p>…or <label for="file-input" class="link">choose files</label>. Combine several files, drag
-            pages to reorder, rotate or delete them, then download a fresh PDF.</p>
-          <p class="dz-privacy">🔒 Everything happens in your browser. Nothing is uploaded — it even works offline.</p>
+          <p>Combine several files, drag pages to reorder, rotate or delete them, then download a fresh PDF.</p>
+          <span class="dz-cta">Choose files</span>
+          <p class="dz-privacy">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+            Everything happens in your browser — nothing is uploaded. Works offline.
+          </p>
         </div>
-      </section>
+      </label>
 
       <section id="grid" class="grid" hidden aria-label="pages"></section>
     </main>

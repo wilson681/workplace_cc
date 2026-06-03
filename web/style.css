@@ -1,14 +1,27 @@
+/* NeuroCreatures — Apple-flavoured dark "pro app" UI.
+   Frosted glass panel, hairline borders, soft depth, pill controls. Teal & gold
+   accents are kept because the canvas (app.js) paints with the same palette. */
+
 :root {
-  --bg: #0b0e14;
-  --bg-soft: #141925;
-  --panel: #11161f;
-  --ink: #e6edf3;
+  --bg: #070b12;
+  --ink: #eef3f8;
+  --ink-2: #c4cdd9;
   --muted: #8b98a9;
-  --line: #232b39;
-  --accent: #5eead4; /* teal */
-  --accent-2: #facc15; /* gold (best) */
-  --food: #84cc16;
-  --danger: #f87171;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-2: rgba(255, 255, 255, 0.07);
+  --accent: #5eead4; /* teal — matches canvas */
+  --accent-2: #facc15; /* gold (best) — matches canvas */
+  --accent-ink: #03241e;
+  --glow: rgba(94, 234, 212, 0.45);
+
+  --r-card: 16px;
+  --r-btn: 12px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter",
+    system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -18,18 +31,29 @@
 html,
 body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 70% -10%, #182033, var(--bg));
+  min-height: 100%;
   color: var(--ink);
-  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  background: radial-gradient(1100px 720px at 78% -18%, #1a2740 0%, transparent 60%),
+    radial-gradient(900px 620px at -5% 108%, #0f2c2b 0%, transparent 55%), var(--bg);
+  background-attachment: fixed;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
+/* ----------------------------------------------------------------- top bar */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
+  gap: 16px;
+  padding: 18px 26px;
   border-bottom: 1px solid var(--line);
+  background: rgba(7, 11, 18, 0.55);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
 }
 
 .brand {
@@ -38,43 +62,66 @@ body {
   gap: 14px;
 }
 
+.app-icon {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--accent-ink);
+  background: linear-gradient(155deg, #7ff3e1 0%, #5eead4 45%, #18b6a2 100%);
+  box-shadow: 0 6px 18px rgba(94, 234, 212, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -3px 6px rgba(0, 60, 50, 0.35);
+}
+.app-icon svg {
+  width: 25px;
+  height: 25px;
+}
 .logo {
-  font-size: 34px;
-  color: var(--accent);
-  filter: drop-shadow(0 0 10px rgba(94, 234, 212, 0.5));
+  display: none;
 }
 
 h1 {
   margin: 0;
   font-size: 22px;
-  letter-spacing: 0.2px;
+  font-weight: 600;
+  letter-spacing: -0.022em;
 }
-
 .tagline {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   color: var(--muted);
   font-size: 13px;
+  max-width: 52ch;
 }
 
 .repo-link {
-  color: var(--muted);
+  color: var(--ink-2);
   text-decoration: none;
-  border: 1px solid var(--line);
-  padding: 6px 12px;
-  border-radius: 8px;
+  border: 1px solid var(--line-2);
+  background: var(--glass);
+  padding: 8px 15px;
+  border-radius: 980px;
   font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color 0.18s var(--ease), color 0.18s var(--ease), transform 0.18s var(--spring);
 }
 .repo-link:hover {
   color: var(--ink);
   border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
+/* ------------------------------------------------------------------ layout */
 .layout {
   display: flex;
-  gap: 20px;
-  padding: 20px 24px 28px;
+  gap: 22px;
+  padding: 24px 26px 34px;
   align-items: flex-start;
   flex-wrap: wrap;
+  max-width: 1340px;
+  margin: 0 auto;
 }
 
 .stage {
@@ -87,10 +134,10 @@ h1 {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 14px;
-  border: 1px solid var(--line);
+  border-radius: 18px;
+  border: 1px solid var(--line-2);
   background: #070a0f;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .genflash {
@@ -99,25 +146,30 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--accent);
   opacity: 0;
   pointer-events: none;
-  text-shadow: 0 0 18px rgba(94, 234, 212, 0.6);
-  transition: opacity 0.15s ease;
+  text-shadow: 0 0 22px var(--glow);
+  transition: opacity 0.15s var(--ease);
 }
 .genflash.show {
   opacity: 1;
 }
 
+/* ------------------------------------------------------------------- panel */
 .panel {
-  flex: 0 1 340px;
-  min-width: 280px;
-  background: linear-gradient(180deg, var(--panel), #0d121a);
+  flex: 0 1 350px;
+  min-width: 288px;
+  background: var(--glass);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 20px;
+  padding: 18px;
+  backdrop-filter: saturate(160%) blur(18px);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
 .controls,
@@ -129,58 +181,79 @@ h1 {
 
 .btn {
   flex: 1;
+  appearance: none;
   cursor: pointer;
-  background: var(--bg-soft);
+  font-family: inherit;
+  background: var(--glass-2);
   color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 9px 10px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-btn);
+  padding: 10px 12px;
   font-size: 14px;
-  transition: all 0.12s ease;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: transform 0.18s var(--spring), border-color 0.18s var(--ease),
+    background 0.18s var(--ease), box-shadow 0.18s var(--ease), filter 0.18s var(--ease);
 }
 .btn:hover {
   border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: scale(0.97);
 }
 .btn-primary {
-  background: var(--accent);
-  color: #04201b;
-  border-color: var(--accent);
-  font-weight: 600;
+  background: linear-gradient(180deg, #7ff3e1, var(--accent));
+  color: var(--accent-ink);
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(94, 234, 212, 0.3);
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+  border-color: transparent;
 }
 .speed.active {
   border-color: var(--accent);
   color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), 0 0 18px rgba(94, 234, 212, 0.22);
+}
+:focus-visible {
+  outline: 3px solid rgba(94, 234, 212, 0.5);
+  outline-offset: 2px;
 }
 
+/* ------------------------------------------------------------------- stats */
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 14px 0 12px;
+  gap: 9px;
+  margin: 15px 0 13px;
 }
 .stats > div {
-  background: var(--bg-soft);
+  background: var(--glass);
   border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 8px 10px;
+  border-radius: 13px;
+  padding: 10px 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .stats dt {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
 }
 .stats dd {
-  margin: 2px 0 0;
-  font-size: 20px;
+  margin: 3px 0 0;
+  font-size: 22px;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .progress {
-  height: 6px;
-  background: var(--bg-soft);
+  height: 7px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -188,26 +261,31 @@ h1 {
 .progress-fill {
   height: 100%;
   width: 0;
+  border-radius: 999px;
   background: linear-gradient(90deg, var(--accent), #38bdf8);
+  box-shadow: 0 0 14px rgba(94, 234, 212, 0.5);
+  transition: width 0.1s linear;
 }
 
+/* ------------------------------------------------------------------- chart */
 .chart-title {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--muted);
-  margin: 18px 0 8px;
+  margin: 20px 0 9px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
 }
 #chart {
   width: 100%;
   height: auto;
   background: #070a0f;
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 13px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .chart-legend {
-  margin-top: 8px;
+  margin-top: 9px;
   font-size: 12px;
   color: var(--muted);
 }
@@ -215,48 +293,66 @@ h1 {
   display: inline-block;
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   vertical-align: middle;
 }
 .swatch-best {
   background: var(--accent-2);
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.5);
 }
 .swatch-avg {
   background: var(--accent);
+  box-shadow: 0 0 8px var(--glow);
 }
 
+/* ------------------------------------------------------------------ slider */
 .slider {
   display: block;
-  margin: 18px 0 4px;
+  margin: 20px 0 4px;
   font-size: 13px;
   color: var(--muted);
 }
 .slider em {
   color: var(--accent);
   font-style: normal;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .slider input {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
   accent-color: var(--accent);
 }
 
 .hint {
-  margin-top: 14px;
+  margin-top: 16px;
   font-size: 12.5px;
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .hint .hl {
   color: var(--accent-2);
+  font-weight: 600;
 }
 .hl {
   color: var(--accent);
 }
 
 @media (max-width: 720px) {
+  .topbar {
+    padding: 14px 16px;
+  }
   .layout {
-    padding: 14px;
+    padding: 16px;
+    gap: 16px;
+  }
+  .panel {
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
   }
 }

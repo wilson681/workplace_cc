@@ -151,10 +151,10 @@ function card(p, index) {
   const actions = document.createElement('div');
   actions.className = 'actions';
   actions.append(
-    iconBtn('◀', 'move left', () => move(index, -1)),
-    iconBtn('↻', 'rotate', () => rotate(p.uid)),
-    iconBtn('▶', 'move right', () => move(index, 1)),
-    iconBtn('✕', 'delete', () => remove(p.uid), 'del'),
+    iconBtn(ICONS.left, 'move left', () => move(index, -1)),
+    iconBtn(ICONS.rotate, 'rotate', () => rotate(p.uid)),
+    iconBtn(ICONS.right, 'move right', () => move(index, 1)),
+    iconBtn(ICONS.trash, 'delete', () => remove(p.uid), 'del'),
   );
 
   el.append(thumb, meta, actions);
@@ -162,9 +162,20 @@ function card(p, index) {
   return el;
 }
 
-function iconBtn(label, title, onClick, cls = '') {
+// Inline SVG glyphs (stroke = currentColor) for the per-page controls.
+const ICONS = {
+  left: '<svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  right: '<svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  rotate:
+    '<svg viewBox="0 0 24 24" fill="none"><path d="M20 11a8 8 0 1 0-2.3 5.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 5v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  trash:
+    '<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2m2 0v12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
+function iconBtn(svg, title, onClick, cls = '') {
   const b = document.createElement('button');
-  b.textContent = label;
+  b.type = 'button';
+  b.innerHTML = svg;
   b.title = title;
   b.setAttribute('aria-label', title);
   if (cls) b.className = cls;
