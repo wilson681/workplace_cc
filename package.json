@@ -12,7 +12,7 @@
     "simulation"
   ],
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/*.test.js",
     "evolve": "node bin/evolve.js",
     "web": "node bin/serve.js"
   },
