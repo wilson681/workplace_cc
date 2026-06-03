@@ -282,7 +282,7 @@ document.querySelectorAll('.speed').forEach((b) => {
 
 el.playPause.addEventListener('click', () => {
   playing = !playing;
-  el.playPause.textContent = playing ? '⏸ Pause' : '▶ Play';
+  el.playPause.textContent = playing ? 'Pause' : 'Play';
   el.playPause.classList.toggle('btn-primary', playing);
 });
 
