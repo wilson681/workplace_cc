@@ -11,6 +11,11 @@ network and the genetic algorithm are written from scratch. The exact same
 engine runs headless in Node (with tests proving it learns) and in the browser
 (for the pretty part).
 
+> **Two projects live in this repo.** This README covers **NeuroCreatures**. There's also
+> **[PocketPDF](pocketpdf/)** → a privacy-first, 100%-in-browser PDF toolkit (merge / reorder /
+> rotate / delete pages, images → PDF — your files never leave your device), with its own README,
+> tests and end-to-end verification.
+
 ![NeuroCreatures in action](docs/screenshot.png)
 
 > Gold line = best forager per generation, teal = population average. They climb
