@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NeuroCreatures — evolving neural-network foragers</title>
+    <meta
+      name="description"
+      content="Watch creatures with neural-network brains evolve to find food, live in your browser. Zero dependencies."
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">⬡</span>
+        <div>
+          <h1>NeuroCreatures</h1>
+          <p class="tagline">
+            neural-network brains, evolved by a genetic algorithm to forage — live, in your browser
+          </p>
+        </div>
+      </div>
+      <a
+        class="repo-link"
+        href="https://github.com/wilson681/workplace_cc"
+        target="_blank"
+        rel="noreferrer"
+        >source ↗</a
+      >
+    </header>
+
+    <main class="layout">
+      <section class="stage">
+        <canvas id="world" width="900" height="600" aria-label="simulation world"></canvas>
+        <div id="genflash" class="genflash" aria-hidden="true"></div>
+      </section>
+
+      <aside class="panel">
+        <div class="controls">
+          <button id="playPause" class="btn btn-primary">⏸ Pause</button>
+          <button id="newRun" class="btn">↻ New run</button>
+        </div>
+
+        <div class="speeds" role="group" aria-label="simulation speed">
+          <button class="btn speed" data-speed="1">1×</button>
+          <button class="btn speed" data-speed="3">3×</button>
+          <button class="btn speed" data-speed="10">10×</button>
+          <button class="btn speed" data-speed="max">Max ⏩</button>
+        </div>
+
+        <dl class="stats">
+          <div><dt>Generation</dt><dd id="stat-gen">0</dd></div>
+          <div><dt>Alive</dt><dd id="stat-alive">0</dd></div>
+          <div><dt>Avg food eaten</dt><dd id="stat-avg">0.0</dd></div>
+          <div><dt>Best food eaten</dt><dd id="stat-best">0</dd></div>
+          <div><dt>Best ever</dt><dd id="stat-record">0</dd></div>
+        </dl>
+
+        <div class="progress" aria-label="generation progress">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+
+        <h2 class="chart-title">Foraging skill per generation</h2>
+        <canvas id="chart" width="320" height="150" aria-label="fitness over generations"></canvas>
+        <div class="chart-legend">
+          <span class="swatch swatch-best"></span> best&nbsp;&nbsp;
+          <span class="swatch swatch-avg"></span> average
+        </div>
+
+        <label class="slider">
+          <span>Mutation rate <em id="mut-val">0.12</em></span>
+          <input id="mutation" type="range" min="0" max="0.5" step="0.01" value="0.12" />
+        </label>
+
+        <p class="hint">
+          Each dot is food; each triangle is a creature steered by its own neural net. The
+          <span class="hl">highlighted</span> one is the current leader — its vision fan shows what it
+          senses. Every generation, the best foragers breed (crossover + mutation) and the world
+          resets. Watch the curve climb.
+        </p>
+      </aside>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

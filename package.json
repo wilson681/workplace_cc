@@ -1,0 +1,23 @@
+{
+  "name": "neuro-creatures",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Neuroevolution life simulator — creatures with neural-network brains evolve to forage. Same zero-dependency engine runs in the browser and headless in Node.",
+  "keywords": [
+    "neuroevolution",
+    "genetic-algorithm",
+    "neural-network",
+    "artificial-life",
+    "simulation"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "evolve": "node bin/evolve.js",
+    "web": "node bin/serve.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
