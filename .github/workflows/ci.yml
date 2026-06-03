@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # NeuroCreatures is zero-dependency, so no install needed for it.
+      - name: NeuroCreatures — test suite
+        run: npm test
+      - name: NeuroCreatures — headless evolution smoke test
+        run: node bin/evolve.js --gens 5 --seed 1 --quiet
+      # PocketPDF needs pdf-lib for its tests.
+      - name: PocketPDF — install deps
+        run: npm install --prefix pocketpdf
+      - name: PocketPDF — PDF operations test suite
+        run: npm test --prefix pocketpdf

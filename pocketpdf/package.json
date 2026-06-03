@@ -1,0 +1,17 @@
+{
+  "name": "pocketpdf",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "A privacy-first PDF toolkit that runs 100% in your browser — merge, organise, rotate, delete pages and turn images into PDFs. Your files never leave your device.",
+  "keywords": ["pdf", "merge", "privacy", "client-side", "offline", "pdf-lib"],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "web": "node ../bin/serve.js"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1"
+  },
+  "license": "MIT"
+}

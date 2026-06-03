@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PocketPDF — merge & organise PDFs, 100% in your browser</title>
+    <meta
+      name="description"
+      content="Merge, reorder, rotate and delete PDF pages and turn images into PDFs — entirely in your browser. Your files never leave your device."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%84%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      { "imports": { "pdf-lib": "./vendor/pdf-lib.js" } }
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="app-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M6.5 2.75h6.7L18.5 8v12.25a1.75 1.75 0 0 1-1.75 1.75H6.5a1.75 1.75 0 0 1-1.75-1.75V4.5A1.75 1.75 0 0 1 6.5 2.75Z" fill="#ffffff" />
+            <path d="M13.2 2.75 18.5 8h-4.05a1.25 1.25 0 0 1-1.25-1.25V2.75Z" fill="#ffd2ce" />
+            <text x="11.5" y="17.4" text-anchor="middle" font-size="6" font-weight="800" letter-spacing="-0.3" fill="#e0322a">PDF</text>
+          </svg>
+        </span>
+        <div>
+          <strong>PocketPDF</strong>
+          <span class="sub">merge &amp; organise PDFs — privately</span>
+        </div>
+      </div>
+      <span class="privacy-badge" title="All processing happens in this tab. No file is ever uploaded.">
+        🔒 100% on your device
+      </span>
+    </header>
+
+    <div class="toolbar">
+      <label class="btn btn-ghost" for="file-input">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+        Add files
+      </label>
+      <input id="file-input" type="file" accept="application/pdf,image/*" multiple hidden />
+      <span id="count" class="count" aria-live="polite">no pages yet</span>
+      <span class="spacer"></span>
+      <button id="clear" class="btn btn-ghost" disabled>Clear</button>
+      <button id="download" class="btn btn-primary" disabled>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Save PDF
+      </button>
+    </div>
+
+    <main id="main">
+      <label id="dropzone" class="dropzone" for="file-input">
+        <div class="dz-inner">
+          <div class="dz-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M5 15v2.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </div>
+          <h2>Drop PDFs or images here</h2>
+          <p>Combine several files, drag pages to reorder, rotate or delete them, then download a fresh PDF.</p>
+          <span class="dz-cta">Choose files</span>
+          <p class="dz-privacy">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+            Everything happens in your browser — nothing is uploaded. Works offline.
+          </p>
+        </div>
+      </label>
+
+      <section id="grid" class="grid" hidden aria-label="pages"></section>
+    </main>
+
+    <div id="status" class="status" role="status" hidden></div>
+
+    <footer class="footer">
+      <div>
+        <strong>Why "in your browser"?</strong> Most online PDF tools upload your file to a server.
+        For contracts, bank statements, IDs and medical records that's a real risk — there have been
+        breaches of exactly these tools. PocketPDF does all the work locally with
+        <a href="https://github.com/Hopding/pdf-lib" target="_blank" rel="noreferrer">pdf-lib</a> and
+        <a href="https://github.com/mozilla/pdf.js" target="_blank" rel="noreferrer">pdf.js</a>, so your
+        documents never leave this tab.
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/wilson681/workplace_cc" target="_blank" rel="noreferrer">source ↗</a>
+      </div>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
