@@ -1,0 +1,19 @@
+{
+  "name": "automerch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI agent pipeline for cross-border print-on-demand e-commerce: niche research -> product selection -> design + listing generation -> publish-ready catalog.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node src/cli.ts",
+    "demo": "node src/cli.ts --niche \"cat lovers\" --count 5 --candidates 12",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
