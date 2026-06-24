@@ -19,6 +19,12 @@
 [![works](https://img.shields.io/badge/works-4_alive-ff5d8f?style=flat-square&labelColor=06070c)](#-the-collection)
 [![live](https://img.shields.io/badge/▶_live_gallery-06070c?style=flat-square&labelColor=7c5cff)](https://wilson681.github.io/workplace_cc/)
 
+<br>
+
+<a href="https://wilson681.github.io/workplace_cc/">
+  <img src="assets/svg/typing.svg" alt="emergence, rendered live · four works, zero deps · simple rules, wild form · view source on anything" width="460">
+</a>
+
 </div>
 
 <br>
@@ -146,6 +152,12 @@ Shared design system in `assets/studio.css`; shared maths & helpers in
 `assets/studio.js`. Animation pauses when the tab is hidden, scales to your
 device-pixel-ratio, and respects `prefers-reduced-motion`.
 
+**Even this README moves on its own.** The four banners above — the wordmark, the
+divider, the orbit glyph, and the typewriter terminal — are **hand-written
+animated SVGs** (SMIL + CSS-in-SVG), so they animate right here on GitHub. No
+`readme-typing-svg`, no external service: the caret tracking the text in that
+terminal is just a `<rect>` whose `x` I keyframed by hand.
+
 </td>
 <td valign="top" width="38%" align="center">
 <img src="assets/svg/orbit.svg" width="220" alt="emergence">
@@ -212,7 +224,7 @@ workplace_cc/
 ├── assets/
 │   ├── studio.css          ← the design system
 │   ├── studio.js           ← helpers + 3-D simplex noise
-│   ├── svg/                ← hand-animated SVGs (this README's motion)
+│   ├── svg/                ← hand-animated SVGs: hero · divider · orbit · typing terminal
 │   └── img/                ← offline-rendered stills of each work
 ├── tools/
 │   └── gen_stills.py       ← numpy/Pillow renderer for the gallery thumbnails
