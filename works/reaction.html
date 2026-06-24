@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reaction–Diffusion — LATENT</title>
+<meta name="description" content="The Gray-Scott reaction–diffusion model, simulated live on the GPU. Two chemicals, the maths of morphogenesis.">
+<meta name="theme-color" content="#05060a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/studio.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23f7a23b'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="stage"><canvas id="c"></canvas></div>
+<a class="back" href="../index.html#works">← studio</a>
+
+<div class="toolbar">
+  <button class="tool" id="reset" title="Re-seed (R)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg>
+  </button>
+  <button class="tool" id="save" title="Save PNG (S)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+  </button>
+  <button class="tool" id="play" title="Pause (space)">
+    <svg viewBox="0 0 24 24" fill="currentColor" id="play-icon"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+  </button>
+  <button class="tool" id="fs" title="Fullscreen (F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<div class="hud">
+  <div class="label"><span class="dot">002</span> · MORPHOGENESIS</div>
+  <h1>Reaction–Diffusion</h1>
+  <p>Two chemicals diffuse and react across a grid — one feeds, one kills. From a uniform soup, spots, stripes and cell-division ripple outward. The same equations Alan Turing proposed for how a blank embryo decides where to put its patterns. <b>Drag to paint.</b></p>
+</div>
+
+<div class="panel" id="panel">
+  <h4>Chemistry</h4>
+  <div class="ctrl">
+    <label>Regime</label>
+    <div class="chips" id="presets">
+      <button class="chip on" data-f="0.0367" data-k="0.0649">coral</button>
+      <button class="chip" data-f="0.0367" data-k="0.0560">mitosis</button>
+      <button class="chip" data-f="0.0545" data-k="0.0620">maze</button>
+      <button class="chip" data-f="0.0260" data-k="0.0610">worms</button>
+      <button class="chip" data-f="0.0180" data-k="0.0510">solitons</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label>Palette</label>
+    <div class="chips" id="palettes">
+      <button class="chip on" data-pal="0">iris</button>
+      <button class="chip" data-pal="1">gold</button>
+      <button class="chip" data-pal="2">ice</button>
+      <button class="chip" data-pal="3">flesh</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label>Feed <span class="val" id="vFeed">0.0367</span></label>
+    <input type="range" id="feed" min="100" max="900" value="367">
+  </div>
+  <div class="ctrl">
+    <label>Kill <span class="val" id="vKill">0.0649</span></label>
+    <input type="range" id="kill" min="450" max="700" value="649">
+  </div>
+  <div class="ctrl">
+    <label>Speed <span class="val" id="vSpeed">12×</span></label>
+    <input type="range" id="speed" min="2" max="30" value="12">
+  </div>
+</div>
+
+<script src="../assets/studio.js"></script>
+<script>
+(() => {
+  const cv = document.getElementById('c');
+  const gl = cv.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: true });
+  const hud = document.querySelector('.hud p');
+  if (!gl) { hud.innerHTML = 'This work needs WebGL2, which your browser/GPU did not provide. The other works run on Canvas 2D — try those.'; return; }
+  const floatOK = gl.getExtension('EXT_color_buffer_float');
+  gl.getExtension('OES_texture_float_linear');
+
+  // ---- shader helpers ---------------------------------------------------
+  function sh(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
+    return s;
+  }
+  function prog(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw gl.getProgramInfoLog(p);
+    return p;
+  }
+
+  const VERT = `#version 300 es
+  in vec2 p; out vec2 uv;
+  void main(){ uv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
+
+  // Gray-Scott update — 9-point Laplacian, mouse painting folded in.
+  const UPDATE = `#version 300 es
+  precision highp float;
+  in vec2 uv; out vec4 frag;
+  uniform sampler2D u_tex; uniform vec2 u_texel;
+  uniform float u_feed, u_kill, u_dt;
+  uniform vec2 u_mouse; uniform float u_down, u_brush, u_aspect;
+  vec2 s(vec2 o){ return texture(u_tex, uv+o*u_texel).rg; }
+  void main(){
+    vec2 c = s(vec2(0.));
+    vec2 lap = s(vec2(1,0))*0.2 + s(vec2(-1,0))*0.2 + s(vec2(0,1))*0.2 + s(vec2(0,-1))*0.2
+             + s(vec2(1,1))*0.05 + s(vec2(-1,1))*0.05 + s(vec2(1,-1))*0.05 + s(vec2(-1,-1))*0.05
+             - c;
+    float U = c.r, V = c.g;
+    float uvv = U*V*V;
+    float dU = (1.0*lap.r - uvv + u_feed*(1.0-U)) * u_dt;
+    float dV = (0.5*lap.g + uvv - (u_feed+u_kill)*V) * u_dt;
+    U = clamp(U+dU, 0.0, 1.0); V = clamp(V+dV, 0.0, 1.0);
+    if(u_down > 0.5){
+      vec2 d = (uv-u_mouse); d.x *= u_aspect;
+      float m = smoothstep(u_brush, 0.0, length(d));
+      V = clamp(V + m*0.9, 0.0, 1.0); U = clamp(U - m*0.6, 0.0, 1.0);
+    }
+    frag = vec4(U, V, 0.0, 1.0);
+  }`;
+
+  // Seed the soup: U=1 everywhere, V scattered + a central cluster.
+  const SEED = `#version 300 es
+  precision highp float;
+  in vec2 uv; out vec4 frag; uniform float u_seed; uniform float u_aspect;
+  float hash(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
+  void main(){
+    float V = 0.0;
+    vec2 g = floor(uv*14.0);
+    if(hash(g+u_seed) > 0.86) V = 1.0;                 // scattered specks
+    vec2 d=(uv-0.5); d.x*=u_aspect;
+    if(length(d) < 0.04) V = 1.0;                       // central kick
+    frag = vec4(1.0, V, 0.0, 1.0);
+  }`;
+
+  // Display: palette + gradient shading for an organic, lit look.
+  const SHOW = `#version 300 es
+  precision highp float;
+  in vec2 uv; out vec4 frag;
+  uniform sampler2D u_tex; uniform vec2 u_texel; uniform int u_pal; uniform float u_time;
+  vec3 ramp(float t, int p){
+    t = clamp(t,0.0,1.0);
+    vec3 a,b,cc,d;
+    if(p==0){ a=vec3(.05,.04,.12); b=vec3(.46,.30,1.0); cc=vec3(.13,.83,.93); d=vec3(1.,.92,.7); }
+    else if(p==1){ a=vec3(.04,.03,.02); b=vec3(.55,.16,.02); cc=vec3(.98,.62,.12); d=vec3(1.,.96,.8); }
+    else if(p==2){ a=vec3(.02,.04,.09); b=vec3(.06,.30,.55); cc=vec3(.36,.78,.95); d=vec3(.9,.98,1.); }
+    else { a=vec3(.10,.02,.05); b=vec3(.55,.12,.22); cc=vec3(.95,.55,.5); d=vec3(1.,.92,.86); }
+    vec3 c1 = mix(a,b, smoothstep(0.0,0.35,t));
+    vec3 c2 = mix(c1,cc, smoothstep(0.30,0.7,t));
+    return mix(c2,d, smoothstep(0.7,1.0,t));
+  }
+  void main(){
+    float v  = texture(u_tex, uv).g;
+    float vx = texture(u_tex, uv+vec2(u_texel.x,0)).g - texture(u_tex, uv-vec2(u_texel.x,0)).g;
+    float vy = texture(u_tex, uv+vec2(0,u_texel.y)).g - texture(u_tex, uv-vec2(0,u_texel.y)).g;
+    vec3 n = normalize(vec3(-vx*6.0, -vy*6.0, 1.0));
+    vec3 L = normalize(vec3(0.5, 0.7, 0.8));
+    float diff = clamp(dot(n,L),0.0,1.0);
+    float spec = pow(diff, 22.0);
+    float t = pow(clamp(v*1.5,0.0,1.0), 0.85);
+    vec3 col = ramp(t, u_pal);
+    col *= (0.55 + 0.7*diff);
+    col += spec*0.6*vec3(1.0,0.95,0.9);
+    col += ramp(t,u_pal)*pow(v,3.0)*0.6;               // inner glow
+    // subtle vignette
+    vec2 q = uv-0.5; col *= 1.0 - dot(q,q)*0.5;
+    frag = vec4(pow(col, vec3(0.95)), 1.0);
+  }`;
+
+  const pUpdate = prog(VERT, UPDATE), pSeed = prog(VERT, SEED), pShow = prog(VERT, SHOW);
+
+  // ---- fullscreen quad --------------------------------------------------
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  for (const p of [pUpdate, pSeed, pShow]) {
+    const loc = gl.getAttribLocation(p, 'p'); gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  }
+
+  // ---- ping-pong targets ------------------------------------------------
+  let SW, SH, texel, aspect, fbo = [], tex = [], cur = 0;
+  function makeTarget(w, h) {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    const internal = floatOK ? gl.RG16F : gl.RGBA8;
+    const fmt = floatOK ? gl.RG : gl.RGBA;
+    const type = floatOK ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
+    gl.texImage2D(gl.TEXTURE_2D, 0, internal, w, h, 0, fmt, type, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    return { t, f };
+  }
+  function allocate() {
+    const dpr = Math.min(1.6, window.devicePixelRatio || 1);
+    const longSide = Math.min(900, Math.round(Math.max(innerWidth, innerHeight) * dpr * 0.55));
+    if (innerWidth >= innerHeight) { SW = longSide; SH = Math.round(longSide * innerHeight / innerWidth); }
+    else { SH = longSide; SW = Math.round(longSide * innerWidth / innerHeight); }
+    texel = [1 / SW, 1 / SH]; aspect = SW / SH;
+    fbo.forEach((o) => { gl.deleteFramebuffer(o.f); gl.deleteTexture(o.t); });
+    tex = []; fbo = [];
+    for (let i = 0; i < 2; i++) { const o = makeTarget(SW, SH); tex[i] = o.t; fbo[i] = o.f; }
+  }
+
+  function resizeCanvas() {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
+  }
+  addEventListener('resize', () => { resizeCanvas(); });
+
+  // ---- state ------------------------------------------------------------
+  const st = { feed: 0.0367, kill: 0.0649, speed: 12, pal: 0, playing: true,
+               mouse: [-1, -1], down: 0, brush: 0.05, t: 0 };
+
+  function seed() {
+    gl.useProgram(pSeed); gl.bindVertexArray(vao);
+    gl.uniform1f(gl.getUniformLocation(pSeed, 'u_seed'), Math.random() * 100);
+    gl.uniform1f(gl.getUniformLocation(pSeed, 'u_aspect'), aspect);
+    gl.viewport(0, 0, SW, SH);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[cur]);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  function step() {
+    gl.useProgram(pUpdate); gl.bindVertexArray(vao); gl.viewport(0, 0, SW, SH);
+    const U = (n) => gl.getUniformLocation(pUpdate, n);
+    gl.uniform2f(U('u_texel'), texel[0], texel[1]);
+    gl.uniform1f(U('u_feed'), st.feed); gl.uniform1f(U('u_kill'), st.kill); gl.uniform1f(U('u_dt'), 1.0);
+    gl.uniform1f(U('u_aspect'), aspect); gl.uniform1f(U('u_brush'), st.brush);
+    gl.uniform2f(U('u_mouse'), st.mouse[0], st.mouse[1]); gl.uniform1f(U('u_down'), st.down);
+    const src = cur, dst = 1 - cur;
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[src]);
+    gl.uniform1i(U('u_tex'), 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[dst]);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    cur = dst;
+  }
+
+  function show() {
+    gl.useProgram(pShow); gl.bindVertexArray(vao);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, cv.width, cv.height);
+    const U = (n) => gl.getUniformLocation(pShow, n);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[cur]);
+    gl.uniform1i(U('u_tex'), 0);
+    gl.uniform2f(U('u_texel'), texel[0], texel[1]);
+    gl.uniform1i(U('u_pal'), st.pal); gl.uniform1f(U('u_time'), st.t);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  function frame() {
+    st.t += 0.016;
+    const iters = st.down ? Math.max(4, st.speed >> 1) : st.speed;
+    for (let i = 0; i < iters; i++) step();
+    show();
+    if (st.playing) requestAnimationFrame(frame);
+  }
+
+  // ---- interaction ------------------------------------------------------
+  function setMouse(e) {
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) / innerWidth;
+    const y = 1 - (e.touches ? e.touches[0].clientY : e.clientY) / innerHeight;
+    st.mouse = [x, y];
+  }
+  cv.addEventListener('pointerdown', (e) => { setMouse(e); st.down = 1; });
+  cv.addEventListener('pointermove', (e) => { if (st.down) setMouse(e); });
+  addEventListener('pointerup', () => st.down = 0);
+  cv.addEventListener('pointerleave', () => st.down = 0);
+
+  const $ = (id) => document.getElementById(id);
+  $('presets').addEventListener('click', (e) => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    [...$('presets').children].forEach((c) => c.classList.toggle('on', c === b));
+    st.feed = +b.dataset.f; st.kill = +b.dataset.k;
+    $('feed').value = Math.round(st.feed * 10000); $('kill').value = Math.round(st.kill * 10000);
+    $('vFeed').textContent = st.feed.toFixed(4); $('vKill').textContent = st.kill.toFixed(4);
+  });
+  $('palettes').addEventListener('click', (e) => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    [...$('palettes').children].forEach((c) => c.classList.toggle('on', c === b));
+    st.pal = +b.dataset.pal;
+  });
+  $('feed').addEventListener('input', (e) => { st.feed = +e.target.value / 10000; $('vFeed').textContent = st.feed.toFixed(4); });
+  $('kill').addEventListener('input', (e) => { st.kill = +e.target.value / 10000; $('vKill').textContent = st.kill.toFixed(4); });
+  $('speed').addEventListener('input', (e) => { st.speed = +e.target.value; $('vSpeed').textContent = st.speed + '×'; });
+
+  $('reset').addEventListener('click', () => { seed(); });
+  $('save').addEventListener('click', () => {
+    show(); const a = document.createElement('a');
+    a.download = `latent-reaction-${Date.now()}.png`; a.href = cv.toDataURL('image/png'); a.click();
+  });
+  $('play').addEventListener('click', togglePlay);
+  $('fs').addEventListener('click', Studio.toggleFullscreen);
+  function togglePlay() {
+    st.playing = !st.playing;
+    $('play-icon').innerHTML = st.playing
+      ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'
+      : '<path d="M7 4l13 8-13 8z"/>';
+    if (st.playing) frame();
+  }
+  addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key.toLowerCase() === 'r') seed();
+    else if (e.key.toLowerCase() === 's') $('save').click();
+    else if (e.key.toLowerCase() === 'f') Studio.toggleFullscreen();
+    else if (e.key.toLowerCase() === 'h') $('panel').classList.toggle('hidden');
+  });
+  Studio.visibilityGate(() => { if (st.playing) frame(); }, () => { });
+
+  // ---- go ---------------------------------------------------------------
+  resizeCanvas(); allocate(); seed();
+  let pendingResize; addEventListener('resize', () => {
+    clearTimeout(pendingResize); pendingResize = setTimeout(() => { allocate(); seed(); }, 200);
+  });
+  frame();
+})();
+</script>
+</body>
+</html>

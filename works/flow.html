@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Flow Field — LATENT</title>
+<meta name="description" content="Tens of thousands of particles drifting across an invisible, slowly-morphing field of simplex noise.">
+<meta name="theme-color" content="#05060a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/studio.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23f7a23b' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="stage"><canvas id="c"></canvas></div>
+<a class="back" href="../index.html#works">← studio</a>
+
+<div class="toolbar">
+  <button class="tool" id="reseed" title="New field (R)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>
+  </button>
+  <button class="tool" id="clear" title="Clear canvas (C)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+  </button>
+  <button class="tool" id="save" title="Save PNG (S)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+  </button>
+  <button class="tool" id="play" title="Pause (space)">
+    <svg viewBox="0 0 24 24" fill="currentColor" id="play-icon"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+  </button>
+  <button class="tool" id="fs" title="Fullscreen (F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<div class="hud">
+  <div class="label"><span class="dot">004</span> · FIELD</div>
+  <h1>Flow Field</h1>
+  <p>An invisible landscape of noise covers the screen; at every point it whispers a direction. Tens of thousands of motes simply follow the whisper. They never collide, never coordinate — and yet they braid into rivers. <b>Your cursor stirs the current.</b></p>
+</div>
+
+<div class="panel" id="panel">
+  <h4>The field</h4>
+  <div class="ctrl">
+    <label>Palette</label>
+    <div class="chips" id="palettes">
+      <button class="chip on" data-pal="0">nebula</button>
+      <button class="chip" data-pal="1">magma</button>
+      <button class="chip" data-pal="2">tide</button>
+      <button class="chip" data-pal="3">spectrum</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label>Cursor</label>
+    <div class="chips" id="modes">
+      <button class="chip on" data-mode="swirl">swirl</button>
+      <button class="chip" data-mode="attract">pull</button>
+      <button class="chip" data-mode="repel">push</button>
+    </div>
+  </div>
+  <div class="ctrl"><label>Particles <span class="val" id="vN">24k</span></label><input type="range" id="count" min="4" max="60" value="24"></div>
+  <div class="ctrl"><label>Field scale <span class="val" id="vScale">1.4</span></label><input type="range" id="scale" min="4" max="40" value="14"></div>
+  <div class="ctrl"><label>Flow speed <span class="val" id="vSpeed">1.0</span></label><input type="range" id="speed" min="20" max="320" value="100"></div>
+  <div class="ctrl"><label>Persistence <span class="val" id="vTrail">0.96</span></label><input type="range" id="trail" min="80" max="99" value="96"></div>
+</div>
+
+<script src="../assets/studio.js"></script>
+<script>
+(() => {
+  const { fitCanvas, makeNoise, clamp, TAU, toggleFullscreen } = Studio;
+  const cv = document.getElementById('c');
+  const ctx = cv.getContext('2d', { alpha: false });
+  let W, H, DPR;
+  let noise = makeNoise((Math.random() * 1e6) | 0);
+
+  let N = 24000, px, py, life;
+  const cfg = { scale: 0.0014, speed: 1.0, fade: 0.04, pal: 0, mode: 'swirl', z: 0 };
+  const mouse = { x: -1e4, y: -1e4, on: false, px: -1e4, py: -1e4 };
+
+  // palettes: function t∈[0,1] -> hue, and base sat/light
+  const palettes = [
+    { name: 'nebula', hue: (t) => 250 + t * 110, sat: 88, lit: 64 },      // violet→cyan
+    { name: 'magma',  hue: (t) => 8 + t * 52,    sat: 95, lit: 60 },      // red→amber
+    { name: 'tide',   hue: (t) => 175 + t * 80,  sat: 82, lit: 60 },      // teal→blue
+    { name: 'spectrum', hue: (t) => (t * 360),   sat: 85, lit: 62 },      // full wheel
+  ];
+
+  function alloc() {
+    px = new Float32Array(N); py = new Float32Array(N); life = new Float32Array(N);
+    for (let i = 0; i < N; i++) { px[i] = Math.random() * W; py[i] = Math.random() * H; life[i] = Math.random() * 200; }
+  }
+  function resize() {
+    const r = fitCanvas(cv, { cap: 1.8 }); W = r.w; H = r.h; DPR = r.dpr;
+    ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
+  }
+  addEventListener('resize', () => { resize(); alloc(); });
+
+  function clearCanvas() { ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H); }
+
+  let playing = true;
+  function frame() {
+    cfg.z += 0.0006 * cfg.speed;
+    // fade for trails
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = `rgba(5,6,10,${cfg.fade})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+
+    const pal = palettes[cfg.pal], sc = cfg.scale, sp = cfg.speed * DPR;
+
+    for (let i = 0; i < N; i++) {
+      let x = px[i], y = py[i];
+      const ang = noise(x * sc, y * sc, cfg.z) * TAU * 2.0;
+      let dx = Math.cos(ang), dy = Math.sin(ang);
+
+      // cursor field
+      if (mouse.on && cfg.mode !== 'off') {
+        const ex = x - mouse.x, ey = y - mouse.y, d2 = ex * ex + ey * ey;
+        const Rm = 170 * DPR;
+        if (d2 < Rm * Rm) {
+          const d = Math.sqrt(d2) || 1, f = (1 - d / Rm);
+          if (cfg.mode === 'swirl') { dx += (-ey / d) * f * 2.2; dy += (ex / d) * f * 2.2; }
+          else if (cfg.mode === 'attract') { dx += (-ex / d) * f * 2.0; dy += (-ey / d) * f * 2.0; }
+          else { dx += (ex / d) * f * 2.2; dy += (ey / d) * f * 2.2; }
+        }
+      }
+      const dm = Math.hypot(dx, dy) || 1;
+      const nx = x + (dx / dm) * sp, ny = y + (dy / dm) * sp;
+
+      const t = (ang / (TAU * 2)) % 1;
+      const hue = pal.hue((t + 1) % 1);
+      ctx.fillStyle = `hsla(${hue % 360},${pal.sat}%,${pal.lit}%,0.5)`;
+      ctx.fillRect(nx, ny, DPR, DPR);
+
+      px[i] = nx; py[i] = ny; life[i] -= 1;
+      // respawn off-screen or aged particles for continual freshness
+      if (nx < 0 || nx > W || ny < 0 || ny > H || life[i] < 0) {
+        px[i] = Math.random() * W; py[i] = Math.random() * H; life[i] = 120 + Math.random() * 240;
+      }
+    }
+    if (playing) requestAnimationFrame(frame);
+  }
+
+  // ---- controls ---------------------------------------------------------
+  const $ = (id) => document.getElementById(id);
+  $('palettes').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return;
+    [...$('palettes').children].forEach((c) => c.classList.toggle('on', c === b)); cfg.pal = +b.dataset.pal; });
+  $('modes').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return;
+    [...$('modes').children].forEach((c) => c.classList.toggle('on', c === b)); cfg.mode = b.dataset.mode; });
+  $('count').addEventListener('input', (e) => { N = +e.target.value * 1000; $('vN').textContent = e.target.value + 'k'; alloc(); });
+  $('scale').addEventListener('input', (e) => { cfg.scale = +e.target.value / 10000; $('vScale').textContent = (+e.target.value / 10).toFixed(1); });
+  $('speed').addEventListener('input', (e) => { cfg.speed = +e.target.value / 100; $('vSpeed').textContent = cfg.speed.toFixed(1); });
+  $('trail').addEventListener('input', (e) => { cfg.fade = 1 - +e.target.value / 100; $('vTrail').textContent = (+e.target.value / 100).toFixed(2); });
+
+  $('reseed').addEventListener('click', () => { noise = makeNoise((Math.random() * 1e6) | 0); });
+  $('clear').addEventListener('click', clearCanvas);
+  $('save').addEventListener('click', () => { const a = document.createElement('a');
+    a.download = `latent-flow-${Date.now()}.png`; a.href = cv.toDataURL('image/png'); a.click(); });
+  $('play').addEventListener('click', togglePlay);
+  $('fs').addEventListener('click', toggleFullscreen);
+  function togglePlay() { playing = !playing;
+    $('play-icon').innerHTML = playing ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>' : '<path d="M7 4l13 8-13 8z"/>';
+    if (playing) frame(); }
+  addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key.toLowerCase() === 'r') $('reseed').click();
+    else if (e.key.toLowerCase() === 'c') clearCanvas();
+    else if (e.key.toLowerCase() === 's') $('save').click();
+    else if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    else if (e.key.toLowerCase() === 'h') $('panel').classList.toggle('hidden');
+  });
+  cv.addEventListener('pointermove', (e) => { mouse.x = e.clientX * DPR; mouse.y = e.clientY * DPR; mouse.on = true; });
+  cv.addEventListener('pointerleave', () => mouse.on = false);
+  Studio.visibilityGate(() => { if (playing) frame(); }, () => {});
+
+  // ---- go ---------------------------------------------------------------
+  resize(); alloc(); frame();
+})();
+</script>
+</body>
+</html>

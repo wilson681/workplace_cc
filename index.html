@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LATENT — a generative art studio</title>
+<meta name="description" content="LATENT is a studio of generative systems. Five works on emergence: how complex beauty arises from simple rules. Built from scratch — no libraries, no dependencies.">
+<meta name="theme-color" content="#05060a">
+<meta property="og:title" content="LATENT — a generative art studio">
+<meta property="og:description" content="Specimens from the latent space. Emergence, rendered in the browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/studio.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%237c5cff' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<!-- loader -->
+<div class="loader" id="loader"><div class="ring"></div></div>
+
+<!-- nav -->
+<header class="nav">
+  <a class="brand" href="#top" aria-label="LATENT home">
+    <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <circle cx="16" cy="16" r="13" stroke="url(#g1)" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="3.4" fill="url(#g1)"/>
+      <circle cx="16" cy="3" r="1.6" fill="#22d3ee"/>
+      <circle cx="27.3" cy="22.5" r="1.6" fill="#f7a23b"/>
+      <circle cx="4.7" cy="22.5" r="1.6" fill="#ff5d8f"/>
+      <defs><linearGradient id="g1" x1="0" y1="0" x2="32" y2="32">
+        <stop stop-color="#7c5cff"/><stop offset="1" stop-color="#22d3ee"/>
+      </linearGradient></defs>
+    </svg>
+    <span><b>LATENT</b></span>
+    <span class="tag">/ studio</span>
+  </a>
+  <nav class="nav-links">
+    <a href="#works">Works</a>
+    <a href="#approach">Approach</a>
+    <a href="#colophon">Colophon</a>
+    <a href="https://github.com/wilson681/workplace_cc" target="_blank" rel="noopener">GitHub ↗</a>
+  </nav>
+</header>
+
+<!-- hero -->
+<section id="top" class="hero">
+  <canvas id="constellation" aria-hidden="true"></canvas>
+  <div class="hero-inner wrap">
+    <div class="eyebrow reveal">
+      <span class="ln"></span>
+      <span class="label">A generative art studio<span class="dot"> ·</span> est. 2026</span>
+    </div>
+    <h1 class="display reveal" data-delay="1">
+      <span class="gradient-text">LATENT</span>
+    </h1>
+    <p class="lede reveal" data-delay="2">
+      Specimens drawn from the space between rules and form.
+      Five living systems on a single idea — <em>emergence</em>:
+      how complexity, pattern and something that looks a lot like
+      <span class="hl">life</span> arise from almost nothing.
+    </p>
+    <div class="hero-cta reveal" data-delay="3">
+      <a class="btn btn-primary" href="#works">Enter the gallery <span class="arrow">→</span></a>
+      <a class="btn" href="#approach">The idea</a>
+    </div>
+    <div class="hero-foot reveal" data-delay="4">
+      <span class="label">Scroll</span>
+      <span class="scroll-line"></span>
+    </div>
+  </div>
+</section>
+
+<!-- marquee -->
+<div class="marquee" aria-hidden="true">
+  <div class="track" id="mq">
+    <b>CHAOS&nbsp;<i>·</i>&nbsp;MORPHOGENESIS&nbsp;<i>·</i>&nbsp;FLOCKING&nbsp;<i>·</i>&nbsp;VECTOR&nbsp;FIELDS&nbsp;<i>·</i>&nbsp;SELF-ORGANISATION&nbsp;<i>·</i>&nbsp;</b>
+  </div>
+</div>
+
+<!-- works -->
+<section id="works" class="section wrap">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow reveal"><span class="ln"></span><span class="label">The collection</span></div>
+      <h2 class="reveal" data-delay="1">Four systems,<br>one question.</h2>
+    </div>
+    <p class="muted reveal" data-delay="2" style="max-width:36ch">
+      Each work runs live in your browser — no images, no recordings.
+      What you see is the system thinking, right now.
+    </p>
+  </div>
+
+  <div class="grid" id="gallery">
+
+    <a class="card col-6 reveal" href="works/attractor.html" data-prev="attractor">
+      <canvas aria-hidden="true"></canvas><div class="scrim"></div>
+      <div class="meta">
+        <div class="idx">001 — CHAOS</div>
+        <h3>Strange Attractors</h3>
+        <p>A single point, two equations, a million iterations. Determinism that never repeats, never settles — and somehow draws.</p>
+        <span class="go">open work →</span>
+      </div>
+    </a>
+
+    <a class="card col-6 reveal" data-delay="1" href="works/reaction.html" data-prev="reaction">
+      <canvas aria-hidden="true"></canvas><div class="scrim"></div>
+      <div class="meta">
+        <div class="idx">002 — MORPHOGENESIS</div>
+        <h3>Reaction–Diffusion</h3>
+        <p>Two chemicals, feeding and killing each other on the GPU. The same maths Turing used to explain a leopard's spots.</p>
+        <span class="go">open work →</span>
+      </div>
+    </a>
+
+    <a class="card col-6 reveal" data-delay="2" href="works/murmuration.html" data-prev="boids">
+      <canvas aria-hidden="true"></canvas><div class="scrim"></div>
+      <div class="meta">
+        <div class="idx">003 — COLLECTIVE</div>
+        <h3>Murmuration</h3>
+        <p>No leader, no plan. Thousands of agents, three local rules, and a flock that moves like one breathing thing.</p>
+        <span class="go">open work →</span>
+      </div>
+    </a>
+
+    <a class="card col-6 reveal" data-delay="3" href="works/flow.html" data-prev="flow">
+      <canvas aria-hidden="true"></canvas><div class="scrim"></div>
+      <div class="meta">
+        <div class="idx">004 — FIELD</div>
+        <h3>Flow Field</h3>
+        <p>Tens of thousands of motes set loose on an invisible landscape of noise. They never touch, yet they paint together.</p>
+        <span class="go">open work →</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- approach -->
+<section id="approach" class="section wrap">
+  <div class="eyebrow reveal"><span class="ln"></span><span class="label">The idea</span></div>
+  <div class="approach-grid">
+    <h2 class="reveal" data-delay="1">
+      Beauty as a<br><span class="gradient-text">side-effect.</span>
+    </h2>
+    <div class="approach-body">
+      <p class="reveal" data-delay="2">
+        None of these works were <em>drawn</em>. Each is a tiny set of rules
+        — sometimes one line of maths — left to run. The image is not designed;
+        it <strong>condenses</strong> out of the process, the way frost decides
+        the shape of a window.
+      </p>
+      <p class="reveal" data-delay="3">
+        That gap fascinates me: between the rule you can hold in your head and
+        the form you could never have predicted from it. It's where weather lives,
+        and cities, and minds. This studio is a small place to stand and watch it happen.
+      </p>
+      <div class="stats reveal" data-delay="4">
+        <div><span class="num" data-to="4">0</span><span class="label">living works</span></div>
+        <div><span class="num" data-to="0" data-suffix=" deps">0</span><span class="label">dependencies</span></div>
+        <div><span class="num" data-to="100" data-suffix="%">0</span><span class="label">from scratch</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- colophon / footer -->
+<footer id="colophon" class="footer">
+  <div class="wrap">
+    <div>
+      <div class="label" style="margin-bottom:16px">Colophon</div>
+      <div class="big">Made by a machine,<br>for the love of it.</div>
+      <p class="muted" style="margin-top:18px;max-width:46ch">
+        Hand-written vanilla JavaScript, Canvas&nbsp;2D and WebGL. No frameworks,
+        no libraries, no build step. View source on anything — it's all there.
+      </p>
+    </div>
+    <div class="cols">
+      <div>
+        <div class="label" style="margin-bottom:14px">Works</div>
+        <a href="works/attractor.html">Strange Attractors</a>
+        <a href="works/reaction.html">Reaction–Diffusion</a>
+        <a href="works/murmuration.html">Murmuration</a>
+        <a href="works/flow.html">Flow Field</a>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:14px">Studio</div>
+        <a href="#approach">Approach</a>
+        <a href="https://github.com/wilson681/workplace_cc" target="_blank" rel="noopener">Source ↗</a>
+        <a href="#top">Back to top</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" style="margin-top:48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <span class="label">© 2026 LATENT — all systems are open</span>
+    <span class="label">latent.studio<span class="dot"> ·</span> emergence in the browser</span>
+  </div>
+</footer>
+
+<style>
+/* ---- page-specific layout ---- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden}
+#constellation{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.hero-inner{position:relative;z-index:2;width:100%;padding-top:80px}
+.hero .display{margin:14px 0 0;filter:drop-shadow(0 10px 60px rgba(124,92,255,.25))}
+.lede{font-size:clamp(17px,2.3vw,23px);max-width:34ch;margin-top:26px;color:var(--paper-dim);line-height:1.5}
+.lede em{color:var(--paper);font-style:normal;font-weight:500}
+.lede .hl{background:var(--grad-iris);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
+.hero-cta{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap}
+.hero-foot{position:absolute;bottom:34px;left:var(--gut);display:flex;align-items:center;gap:14px}
+.scroll-line{display:block;width:46px;height:1px;background:linear-gradient(90deg,var(--iris-2),transparent);position:relative;overflow:hidden}
+.scroll-line::after{content:"";position:absolute;inset:0;width:40%;background:#fff;animation:scrolldot 2.4s var(--ease) infinite}
+@keyframes scrolldot{0%{transform:translateX(-100%)}60%,100%{transform:translateX(280%)}}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(70% 60% at 18% 42%,transparent,rgba(5,6,10,.7) 100%)}
+
+.approach-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(30px,6vw,90px);align-items:start}
+.approach-grid h2{font-size:clamp(34px,6vw,68px)}
+.approach-body p{font-size:clamp(16px,1.7vw,19px);color:var(--paper-dim);margin-bottom:22px;line-height:1.65}
+.approach-body strong,.approach-body em{color:var(--paper);font-weight:600;font-style:normal}
+.stats{display:flex;gap:40px;margin-top:36px;flex-wrap:wrap}
+.stats .num{font-family:var(--font-display);font-size:clamp(34px,5vw,56px);font-weight:600;display:block;line-height:1;background:var(--grad-iris);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats .label{margin-top:8px;display:block}
+@media(max-width:780px){.approach-grid{grid-template-columns:1fr}}
+</style>
+
+<script src="assets/studio.js"></script>
+<script>
+(() => {
+  const { fitCanvas, makeNoise, clamp, TAU } = Studio;
+
+  /* ---------- hero: the latent constellation ---------------------------- */
+  const cv = document.getElementById('constellation');
+  const ctx = cv.getContext('2d', { alpha: true });
+  const noise = makeNoise(20260624);
+  let W, H, DPR, nodes = [], t = 0;
+  const mouse = { x: -1e3, y: -1e3, on: false };
+
+  function spawn() {
+    const target = Math.round(clamp((W * H) / 22000, 60, 150));
+    nodes = [];
+    for (let i = 0; i < target; i++) {
+      nodes.push({
+        x: Math.random() * W, y: Math.random() * H,
+        z: 0.4 + Math.random() * 0.6,           // depth → size/speed
+        hue: 250 + Math.random() * 70,           // violet→cyan band
+      });
+    }
+  }
+  function resize() {
+    const r = fitCanvas(cv, { cap: 2 }); W = r.w; H = r.h; DPR = r.dpr; spawn();
+  }
+  addEventListener('resize', resize);
+  cv.addEventListener('pointermove', (e) => {
+    const b = cv.getBoundingClientRect();
+    mouse.x = (e.clientX - b.left) * DPR; mouse.y = (e.clientY - b.top) * DPR; mouse.on = true;
+  });
+  cv.addEventListener('pointerleave', () => mouse.on = false);
+
+  const LINK = 150;            // base link distance (device px, scaled below)
+  function frame() {
+    t += 0.0016;
+    ctx.clearRect(0, 0, W, H);
+    const link = LINK * DPR;
+
+    for (const n of nodes) {
+      const scl = 0.0011;
+      const a = noise(n.x * scl, n.y * scl, t) * TAU * 1.5;
+      const sp = (0.18 + n.z * 0.5) * DPR;
+      n.x += Math.cos(a) * sp; n.y += Math.sin(a) * sp;
+
+      if (mouse.on) {
+        const dx = mouse.x - n.x, dy = mouse.y - n.y, d2 = dx * dx + dy * dy;
+        const R = 190 * DPR;
+        if (d2 < R * R) { const d = Math.sqrt(d2) || 1, f = (1 - d / R) * 1.6 * DPR;
+          n.x += (dx / d) * f; n.y += (dy / d) * f; }
+      }
+      // wrap
+      if (n.x < -20) n.x = W + 20; if (n.x > W + 20) n.x = -20;
+      if (n.y < -20) n.y = H + 20; if (n.y > H + 20) n.y = -20;
+    }
+
+    // links
+    ctx.lineWidth = DPR;
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+        if (d2 < link * link) {
+          const d = Math.sqrt(d2), o = (1 - d / link);
+          ctx.strokeStyle = `hsla(${(a.hue + b.hue) / 2},85%,68%,${o * 0.32})`;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+    // nodes
+    for (const n of nodes) {
+      const r = n.z * 2.2 * DPR;
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 4);
+      g.addColorStop(0, `hsla(${n.hue},90%,72%,.9)`);
+      g.addColorStop(1, `hsla(${n.hue},90%,72%,0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, r * 4, 0, TAU); ctx.fill();
+      ctx.fillStyle = `hsla(${n.hue},95%,85%,.95)`;
+      ctx.beginPath(); ctx.arc(n.x, n.y, r * 0.6, 0, TAU); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  resize(); requestAnimationFrame(frame);
+
+  /* ---------- gallery card mini-previews -------------------------------- */
+  // Each preview is intentionally lightweight; only animates while on-screen.
+  const previews = {
+    attractor(c, x) {
+      const g = c.getContext('2d'); let px = 0.1, py = 0.1;
+      let a = -2, b = -2.1, cc = -1.2, d = 1.9; const live = [];
+      x.tick = () => {
+        g.globalCompositeOperation = 'source-over';
+        g.fillStyle = 'rgba(8,9,16,.08)'; g.fillRect(0, 0, x.W, x.H);
+        g.globalCompositeOperation = 'lighter';
+        a += Math.sin(x.t * .3) * .002; b += Math.cos(x.t * .27) * .002;
+        for (let i = 0; i < 1400; i++) {
+          const nx = Math.sin(a * py) - Math.cos(b * px);
+          const ny = Math.sin(cc * px) - Math.cos(d * py);
+          px = nx; py = ny;
+          const sx = (nx * 0.27 + 0.5) * x.W, sy = (ny * 0.27 + 0.5) * x.H;
+          g.fillStyle = `hsla(${190 + (i % 90)},90%,65%,.5)`;
+          g.fillRect(sx, sy, x.DPR, x.DPR);
+        }
+      };
+    },
+    reaction(c, x) {
+      const g = c.getContext('2d'); const n = Studio.makeNoise(7);
+      x.tick = () => {
+        const img = g.getImageData(0, 0, x.W, x.H), dt = img.data, st = 3;
+        for (let y = 0; y < x.H; y += st) for (let xx = 0; xx < x.W; xx += st) {
+          let v = n(xx * .012, y * .012, x.t * .25) + 0.5 * n(xx * .03, y * .03, x.t * .2);
+          v = Math.abs(v); const on = (v % 0.32) < 0.16;
+          const h = 250 + v * 80, l = on ? 60 : 8;
+          const [r, gg, bb] = hslRGB(h, 80, l);
+          for (let dy = 0; dy < st; dy++) for (let dx = 0; dx < st; dx++) {
+            const idx = ((y + dy) * x.W + (xx + dx)) * 4;
+            if (idx + 3 < dt.length) { dt[idx] = r; dt[idx + 1] = gg; dt[idx + 2] = bb; dt[idx + 3] = 255; }
+          }
+        }
+        g.putImageData(img, 0, 0);
+      };
+    },
+    boids(c, x) {
+      const g = c.getContext('2d'); const N = 80, b = [];
+      for (let i = 0; i < N; i++) b.push({ x: Math.random() * x.W, y: Math.random() * x.H, vx: (Math.random() - .5), vy: (Math.random() - .5) });
+      x.tick = () => {
+        g.fillStyle = 'rgba(8,9,16,.22)'; g.fillRect(0, 0, x.W, x.H);
+        for (const p of b) {
+          let ax = 0, ay = 0, cx = 0, cy = 0, n = 0;
+          for (const q of b) { const dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy;
+            if (d2 < 1400 && d2 > 0) { ax += q.vx; ay += q.vy; cx += q.x; cy += q.y; n++;
+              if (d2 < 200) { p.vx -= dx * .002; p.vy -= dy * .002; } } }
+          if (n) { p.vx += (ax / n - p.vx) * .03 + (cx / n - p.x) * .0006;
+                   p.vy += (ay / n - p.vy) * .03 + (cy / n - p.y) * .0006; }
+          const sp = Math.hypot(p.vx, p.vy) || 1; const mx = 1.5 * x.DPR;
+          if (sp > mx) { p.vx = p.vx / sp * mx; p.vy = p.vy / sp * mx; }
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0) p.x += x.W; if (p.x > x.W) p.x -= x.W;
+          if (p.y < 0) p.y += x.H; if (p.y > x.H) p.y -= x.H;
+          g.fillStyle = `hsla(${30 + sp * 20},90%,68%,.9)`;
+          g.beginPath(); g.arc(p.x, p.y, 1.4 * x.DPR, 0, TAU); g.fill();
+        }
+      };
+    },
+    flow(c, x) {
+      const g = c.getContext('2d'); const n = Studio.makeNoise(99), P = [];
+      for (let i = 0; i < 420; i++) P.push({ x: Math.random() * x.W, y: Math.random() * x.H });
+      x.tick = () => {
+        g.fillStyle = 'rgba(8,9,16,.06)'; g.fillRect(0, 0, x.W, x.H);
+        g.globalCompositeOperation = 'lighter';
+        for (const p of P) {
+          const a = n(p.x * .002, p.y * .002, x.t * .12) * TAU * 2;
+          const nx = p.x + Math.cos(a) * 1.1 * x.DPR, ny = p.y + Math.sin(a) * 1.1 * x.DPR;
+          g.strokeStyle = `hsla(${280 + Math.sin(x.t + p.x * .01) * 60},90%,66%,.4)`;
+          g.lineWidth = x.DPR; g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(nx, ny); g.stroke();
+          p.x = nx; p.y = ny;
+          if (p.x < 0 || p.x > x.W || p.y < 0 || p.y > x.H) { p.x = Math.random() * x.W; p.y = Math.random() * x.H; }
+        }
+        g.globalCompositeOperation = 'source-over';
+      };
+    },
+  };
+  function hslRGB(h, s, l) {
+    s /= 100; l /= 100; const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+  }
+
+  const cards = [...document.querySelectorAll('.card[data-prev]')].map((card) => {
+    const c = card.querySelector('canvas'); const x = { t: 0, visible: false };
+    const setup = () => { const r = fitCanvas(c, { cap: 1.5 }); x.W = r.w; x.H = r.h; x.DPR = r.dpr;
+      const g = c.getContext('2d'); g.fillStyle = '#08090f'; g.fillRect(0, 0, x.W, x.H);
+      previews[card.dataset.prev](c, x); };
+    setup(); addEventListener('resize', setup);
+    return { c, x };
+  });
+  const cio = new IntersectionObserver((es) => es.forEach((e) => {
+    const cd = cards.find((k) => k.c === e.target.querySelector('canvas')); if (cd) cd.x.visible = e.isIntersecting;
+  }), { threshold: 0.05 });
+  document.querySelectorAll('.card[data-prev]').forEach((el) => cio.observe(el));
+  (function loop() { for (const { x } of cards) if (x.visible && x.tick) { x.t += 0.016; x.tick(); } requestAnimationFrame(loop); })();
+
+  /* ---------- count-up stats -------------------------------------------- */
+  const sio = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return; sio.unobserve(e.target);
+    const to = +e.target.dataset.to, suf = e.target.dataset.suffix || ''; let s = 0;
+    const step = () => { s += Math.max(1, to / 38); if (s >= to) s = to;
+      e.target.textContent = Math.round(s) + suf; if (s < to) requestAnimationFrame(step); };
+    step();
+  }), { threshold: 0.6 });
+  document.querySelectorAll('.num').forEach((el) => sio.observe(el));
+
+  /* ---------- loader off ------------------------------------------------- */
+  addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('done'), 280));
+  setTimeout(() => document.getElementById('loader').classList.add('done'), 1600);
+})();
+</script>
+</body>
+</html>
