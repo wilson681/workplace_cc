@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>LATENT — a generative art studio</title>
-<meta name="description" content="LATENT is a studio of generative systems. Five works on emergence: how complex beauty arises from simple rules. Built from scratch — no libraries, no dependencies.">
+<meta name="description" content="LATENT is a studio of generative systems. Four works on emergence: how complex beauty arises from simple rules. Built from scratch — no libraries, no dependencies.">
 <meta name="theme-color" content="#05060a">
 <meta property="og:title" content="LATENT — a generative art studio">
 <meta property="og:description" content="Specimens from the latent space. Emergence, rendered in the browser.">
@@ -56,7 +56,7 @@
     </h1>
     <p class="lede reveal" data-delay="2">
       Specimens drawn from the space between rules and form.
-      Five living systems on a single idea — <em>emergence</em>:
+      Four living systems on a single idea — <em>emergence</em>:
       how complexity, pattern and something that looks a lot like
       <span class="hl">life</span> arise from almost nothing.
     </p>
@@ -209,7 +209,7 @@
 .lede em{color:var(--paper);font-style:normal;font-weight:500}
 .lede .hl{background:var(--grad-iris);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
 .hero-cta{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap}
-.hero-foot{position:absolute;bottom:34px;left:var(--gut);display:flex;align-items:center;gap:14px}
+.hero-foot{position:absolute;bottom:30px;right:var(--gut);display:flex;align-items:center;gap:14px;pointer-events:none;opacity:.8}
 .scroll-line{display:block;width:46px;height:1px;background:linear-gradient(90deg,var(--iris-2),transparent);position:relative;overflow:hidden}
 .scroll-line::after{content:"";position:absolute;inset:0;width:40%;background:#fff;animation:scrolldot 2.4s var(--ease) infinite}
 @keyframes scrolldot{0%{transform:translateX(-100%)}60%,100%{transform:translateX(280%)}}
@@ -223,6 +223,7 @@
 .stats .num{font-family:var(--font-display);font-size:clamp(34px,5vw,56px);font-weight:600;display:block;line-height:1;background:var(--grad-iris);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stats .label{margin-top:8px;display:block}
 @media(max-width:780px){.approach-grid{grid-template-columns:1fr}}
+@media(max-height:760px){.hero-foot{display:none}}
 </style>
 
 <script src="assets/studio.js"></script>
