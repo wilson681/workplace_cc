@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 80" width="1280" height="80" role="img" aria-label="divider">
+  <defs>
+    <linearGradient id="d-iris" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0"  stop-color="#7c5cff" stop-opacity="0"/>
+      <stop offset=".18" stop-color="#7c5cff"/>
+      <stop offset=".5" stop-color="#22d3ee"/>
+      <stop offset=".82" stop-color="#f7a23b"/>
+      <stop offset="1"  stop-color="#ff5d8f" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="d-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- undulating signal -->
+  <path fill="none" stroke="url(#d-iris)" stroke-width="2" stroke-linecap="round" filter="url(#d-glow)"
+        d="M0,40 Q160,16 320,40 T640,40 T960,40 T1280,40">
+    <animate attributeName="d" dur="7s" repeatCount="indefinite"
+      values="M0,40 Q160,16 320,40 T640,40 T960,40 T1280,40;
+              M0,40 Q160,64 320,40 T640,40 T960,40 T1280,40;
+              M0,40 Q160,16 320,40 T640,40 T960,40 T1280,40"/>
+  </path>
+  <!-- faint echo -->
+  <path fill="none" stroke="url(#d-iris)" stroke-width="1" stroke-opacity=".3"
+        d="M0,40 Q160,60 320,40 T640,40 T960,40 T1280,40">
+    <animate attributeName="d" dur="7s" repeatCount="indefinite"
+      values="M0,40 Q160,60 320,40 T640,40 T960,40 T1280,40;
+              M0,40 Q160,20 320,40 T640,40 T960,40 T1280,40;
+              M0,40 Q160,60 320,40 T640,40 T960,40 T1280,40"/>
+  </path>
+
+  <!-- comet sweeping across -->
+  <circle r="4" fill="#fff" filter="url(#d-glow)">
+    <animateMotion dur="6s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1" path="M0,40 H1280"/>
+    <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="6s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="2" fill="#22d3ee">
+    <animateMotion dur="6s" begin="-1.4s" repeatCount="indefinite" path="M0,40 H1280"/>
+    <animate attributeName="opacity" values="0;.7;.7;0" keyTimes="0;.1;.9;1" dur="6s" begin="-1.4s" repeatCount="indefinite"/>
+  </circle>
+</svg>

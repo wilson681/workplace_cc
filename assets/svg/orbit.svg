@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="emergence glyph">
+  <defs>
+    <linearGradient id="o-iris" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#ff5d8f"/>
+    </linearGradient>
+    <radialGradient id="o-core" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="o-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      @keyframes spin  { to { transform: rotate(360deg); } }
+      @keyframes spinr { to { transform: rotate(-360deg); } }
+      @keyframes breathe { 0%,100%{ transform: scale(.82); opacity:.8 } 50%{ transform: scale(1.1); opacity:1 } }
+      .ring1 { animation: spin 18s linear infinite;  transform-origin:120px 120px; }
+      .ring2 { animation: spinr 26s linear infinite; transform-origin:120px 120px; }
+      .ring3 { animation: spin 12s linear infinite;  transform-origin:120px 120px; }
+      .core  { animation: breathe 4s ease-in-out infinite; transform-origin:120px 120px; }
+      .liss  { stroke-dasharray: 900; animation: trace 9s linear infinite; }
+      @keyframes trace { 0%{ stroke-dashoffset:900 } 50%{ stroke-dashoffset:0 } 100%{ stroke-dashoffset:-900 } }
+    </style>
+  </defs>
+
+  <!-- lissajous figure being drawn and erased -->
+  <path class="liss" fill="none" stroke="url(#o-iris)" stroke-width="1.4" stroke-opacity=".7"
+        d="M120,40
+           C 60,60 60,180 120,200
+           C 180,180 180,60 120,40
+           M40,120
+           C 60,60 180,60 200,120
+           C 180,180 60,180 40,120"/>
+
+  <!-- orbital rings -->
+  <g class="ring1"><circle cx="120" cy="120" r="92" fill="none" stroke="url(#o-iris)" stroke-width="1.2" stroke-opacity=".4" stroke-dasharray="2 10" stroke-linecap="round"/></g>
+  <g class="ring2"><ellipse cx="120" cy="120" rx="74" ry="40" fill="none" stroke="#22d3ee" stroke-width="1" stroke-opacity=".5"/></g>
+  <g class="ring3"><ellipse cx="120" cy="120" rx="40" ry="74" fill="none" stroke="#ff5d8f" stroke-width="1" stroke-opacity=".45"/></g>
+
+  <!-- orbiting nodes -->
+  <g class="ring1"><circle cx="212" cy="120" r="4" fill="#7c5cff" filter="url(#o-glow)"/></g>
+  <g class="ring2"><circle cx="194" cy="120" r="3.4" fill="#22d3ee" filter="url(#o-glow)"/></g>
+  <g class="ring3"><circle cx="120" cy="46" r="3.4" fill="#ff5d8f" filter="url(#o-glow)"/></g>
+
+  <!-- nucleus -->
+  <g class="core"><circle cx="120" cy="120" r="22" fill="url(#o-core)"/></g>
+  <circle cx="120" cy="120" r="3" fill="#fff"/>
+</svg>

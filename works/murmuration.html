@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Murmuration — LATENT</title>
+<meta name="description" content="Thousands of agents, three local rules, and a flock with no leader. Boids — emergent collective motion.">
+<meta name="theme-color" content="#05060a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/studio.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23ff5d8f' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%237c5cff'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="stage"><canvas id="c"></canvas></div>
+<a class="back" href="../index.html#works">← studio</a>
+
+<div class="toolbar">
+  <button class="tool" id="scatter" title="Scatter (R)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></svg>
+  </button>
+  <button class="tool" id="save" title="Save PNG (S)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+  </button>
+  <button class="tool" id="play" title="Pause (space)">
+    <svg viewBox="0 0 24 24" fill="currentColor" id="play-icon"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+  </button>
+  <button class="tool" id="fs" title="Fullscreen (F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<div class="hud">
+  <div class="label"><span class="dot">003</span> · COLLECTIVE</div>
+  <h1>Murmuration</h1>
+  <p>Every bird obeys three rules, and only looks at its nearest neighbours: don't crowd, match heading, drift toward the middle. Nobody is in charge. Yet the flock turns as one. <b>Move your cursor</b> to play the hawk.</p>
+</div>
+
+<div class="panel" id="panel">
+  <h4>Flocking</h4>
+  <div class="ctrl">
+    <label>Cursor</label>
+    <div class="chips" id="modes">
+      <button class="chip on" data-mode="predator">hawk</button>
+      <button class="chip" data-mode="attract">lure</button>
+      <button class="chip" data-mode="off">none</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label>Palette</label>
+    <div class="chips" id="palettes">
+      <button class="chip on" data-pal="0">dusk</button>
+      <button class="chip" data-pal="1">aurora</button>
+      <button class="chip" data-pal="2">mono</button>
+    </div>
+  </div>
+  <div class="ctrl"><label>Flock size <span class="val" id="vN">1600</span></label><input type="range" id="count" min="300" max="4000" step="100" value="1600"></div>
+  <div class="ctrl"><label>Alignment <span class="val" id="vA">1.0</span></label><input type="range" id="align" min="0" max="200" value="100"></div>
+  <div class="ctrl"><label>Cohesion <span class="val" id="vC">1.0</span></label><input type="range" id="cohere" min="0" max="200" value="100"></div>
+  <div class="ctrl"><label>Separation <span class="val" id="vS">1.0</span></label><input type="range" id="separate" min="0" max="200" value="100"></div>
+  <div class="ctrl"><label>Trail <span class="val" id="vT">0.16</span></label><input type="range" id="trail" min="2" max="60" value="16"></div>
+</div>
+
+<script src="../assets/studio.js"></script>
+<script>
+(() => {
+  const { fitCanvas, clamp, TAU, toggleFullscreen } = Studio;
+  const cv = document.getElementById('c');
+  const ctx = cv.getContext('2d', { alpha: false });
+  let W, H, DPR;
+
+  // ---- boid storage (SoA for speed) ------------------------------------
+  let N = 1600, px, py, vx, vy;
+  const R = 34;                       // perception radius (css px)
+  let Rs;                             // scaled radius
+  const cfg = { align: 1, cohere: 1, separate: 1, maxSpeed: 3.0, maxForce: 0.06,
+                trail: 0.16, mode: 'predator', pal: 0 };
+  const palettes = [
+    { base: 268, range: 90 },         // dusk: violet→cyan→rose
+    { base: 150, range: 120 },        // aurora: green→cyan→violet
+    { base: 210, range: 26 },         // mono: cool steel
+  ];
+  const mouse = { x: -1e4, y: -1e4, on: false };
+
+  function alloc() {
+    px = new Float32Array(N); py = new Float32Array(N);
+    vx = new Float32Array(N); vy = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      px[i] = Math.random() * W; py[i] = Math.random() * H;
+      const a = Math.random() * TAU; const sp = cfg.maxSpeed * (0.5 + Math.random() * 0.5);
+      vx[i] = Math.cos(a) * sp; vy[i] = Math.sin(a) * sp;
+    }
+  }
+  function resize() {
+    const r = fitCanvas(cv, { cap: 2 }); W = r.w; H = r.h; DPR = r.dpr;
+    Rs = R * DPR; cfg.maxSpeedS = cfg.maxSpeed * DPR; cfg.maxForceS = cfg.maxForce * DPR;
+    ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
+    rebuildGrid();
+  }
+  addEventListener('resize', () => { const oldN = N; resize(); if (!px || px.length !== N) alloc(); });
+
+  // ---- spatial hash -----------------------------------------------------
+  let cols, rows, cell, heads, next;
+  function rebuildGrid() {
+    cell = Rs; cols = Math.max(1, Math.ceil(W / cell)); rows = Math.max(1, Math.ceil(H / cell));
+    heads = new Int32Array(cols * rows).fill(-1);
+    next = new Int32Array(N).fill(-1);
+  }
+  const cellOf = (x, y) => {
+    let cxi = (x / cell) | 0, cyi = (y / cell) | 0;
+    if (cxi < 0) cxi = 0; else if (cxi >= cols) cxi = cols - 1;
+    if (cyi < 0) cyi = 0; else if (cyi >= rows) cyi = rows - 1;
+    return cyi * cols + cxi;
+  };
+  function fillGrid() {
+    heads.fill(-1);
+    for (let i = 0; i < N; i++) { const c = cellOf(px[i], py[i]); next[i] = heads[c]; heads[c] = i; }
+  }
+
+  // ---- simulation -------------------------------------------------------
+  function stepBoids() {
+    fillGrid();
+    const R2 = Rs * Rs, sepR2 = (Rs * 0.45) * (Rs * 0.45);
+    const wA = cfg.align, wC = cfg.cohere, wS = cfg.separate;
+    const maxSp = cfg.maxSpeedS, maxF = cfg.maxForceS;
+
+    for (let i = 0; i < N; i++) {
+      const x = px[i], y = py[i];
+      let ax = 0, ay = 0, cx = 0, cy = 0, sx = 0, sy = 0, n = 0, ns = 0;
+      const ci = (x / cell) | 0, cj = (y / cell) | 0;
+      for (let gy = cj - 1; gy <= cj + 1; gy++) {
+        if (gy < 0 || gy >= rows) continue;
+        for (let gx = ci - 1; gx <= ci + 1; gx++) {
+          if (gx < 0 || gx >= cols) continue;
+          let j = heads[gy * cols + gx];
+          while (j !== -1) {
+            if (j !== i) {
+              const dx = px[j] - x, dy = py[j] - y, d2 = dx * dx + dy * dy;
+              if (d2 < R2) {
+                ax += vx[j]; ay += vy[j]; cx += px[j]; cy += py[j]; n++;
+                if (d2 < sepR2 && d2 > 0) { const inv = 1 / d2; sx -= dx * inv; sy -= dy * inv; ns++; }
+              }
+            }
+            j = next[j];
+          }
+        }
+      }
+
+      let fx = 0, fy = 0;
+      if (n > 0) {
+        // alignment
+        let alx = ax / n, aly = ay / n; let m = Math.hypot(alx, aly);
+        if (m > 0) { alx = alx / m * maxSp - vx[i]; aly = aly / m * maxSp - vy[i];
+          fx += alx * wA; fy += aly * wA; }
+        // cohesion
+        let dcx = cx / n - x, dcy = cy / n - y; m = Math.hypot(dcx, dcy);
+        if (m > 0) { dcx = dcx / m * maxSp - vx[i]; dcy = dcy / m * maxSp - vy[i];
+          fx += dcx * wC * 0.6; fy += dcy * wC * 0.6; }
+      }
+      if (ns > 0) {
+        let m = Math.hypot(sx, sy);
+        if (m > 0) { sx = sx / m * maxSp - vx[i]; sy = sy / m * maxSp - vy[i];
+          fx += sx * wS * 1.5; fy += sy * wS * 1.5; }
+      }
+
+      // cursor influence
+      if (mouse.on && cfg.mode !== 'off') {
+        const dx = x - mouse.x, dy = y - mouse.y, d2 = dx * dx + dy * dy;
+        const Rm = 150 * DPR;
+        if (d2 < Rm * Rm) {
+          const d = Math.sqrt(d2) || 1, f = (1 - d / Rm);
+          if (cfg.mode === 'predator') { fx += (dx / d) * f * maxF * 60; fy += (dy / d) * f * maxF * 60; }
+          else { fx -= (dx / d) * f * maxF * 26; fy -= (dy / d) * f * maxF * 26; }
+        }
+      }
+
+      // soft boundaries (steer back in)
+      const m2 = 90 * DPR;
+      if (x < m2) fx += maxF * (1 - x / m2) * 8; else if (x > W - m2) fx -= maxF * (1 - (W - x) / m2) * 8;
+      if (y < m2) fy += maxF * (1 - y / m2) * 8; else if (y > H - m2) fy -= maxF * (1 - (H - y) / m2) * 8;
+
+      // clamp force
+      const fm = Math.hypot(fx, fy);
+      if (fm > maxF) { fx = fx / fm * maxF; fy = fy / fm * maxF; }
+      vx[i] += fx; vy[i] += fy;
+
+      // clamp speed (with a floor so birds never stall)
+      const sp = Math.hypot(vx[i], vy[i]);
+      if (sp > maxSp) { vx[i] = vx[i] / sp * maxSp; vy[i] = vy[i] / sp * maxSp; }
+      else if (sp < maxSp * 0.35 && sp > 0) { vx[i] = vx[i] / sp * maxSp * 0.35; vy[i] = vy[i] / sp * maxSp * 0.35; }
+
+      px[i] += vx[i]; py[i] += vy[i];
+      // hard wrap as a safety net
+      if (px[i] < -5) px[i] = W + 5; else if (px[i] > W + 5) px[i] = -5;
+      if (py[i] < -5) py[i] = H + 5; else if (py[i] > H + 5) py[i] = -5;
+    }
+  }
+
+  // ---- render -----------------------------------------------------------
+  let hueDrift = 0;
+  function draw() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = `rgba(5,6,10,${cfg.trail})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    hueDrift += 0.06;
+    const pal = palettes[cfg.pal], len = 3.4 * DPR;
+    ctx.lineWidth = 1.5 * DPR;
+    for (let i = 0; i < N; i++) {
+      const sp = Math.hypot(vx[i], vy[i]) || 1;
+      const ux = vx[i] / sp, uy = vy[i] / sp;
+      const ang = Math.atan2(vy[i], vx[i]);
+      const hue = (pal.base + (ang / TAU) * pal.range + hueDrift) % 360;
+      const x2 = px[i], y2 = py[i], x1 = x2 - ux * len * (0.6 + sp / cfg.maxSpeedS), y1 = y2 - uy * len * (0.6 + sp / cfg.maxSpeedS);
+      ctx.strokeStyle = `hsla(${(hue + 360) % 360},85%,${cfg.pal === 2 ? 72 : 64}%,0.9)`;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+    // a soft glow head dot for the brightest
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  let playing = true;
+  function frame() { stepBoids(); draw(); if (playing) requestAnimationFrame(frame); }
+
+  // ---- controls ---------------------------------------------------------
+  const $ = (id) => document.getElementById(id);
+  $('modes').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return;
+    [...$('modes').children].forEach((c) => c.classList.toggle('on', c === b)); cfg.mode = b.dataset.mode; });
+  $('palettes').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return;
+    [...$('palettes').children].forEach((c) => c.classList.toggle('on', c === b)); cfg.pal = +b.dataset.pal; });
+  $('count').addEventListener('input', (e) => { N = +e.target.value; $('vN').textContent = N;
+    rebuildGrid(); alloc(); });
+  const linkW = (id, key, vid) => $(id).addEventListener('input', (e) => {
+    cfg[key] = +e.target.value / 100; $(vid).textContent = cfg[key].toFixed(1); });
+  linkW('align', 'align', 'vA'); linkW('cohere', 'cohere', 'vC'); linkW('separate', 'separate', 'vS');
+  $('trail').addEventListener('input', (e) => { cfg.trail = +e.target.value / 100; $('vT').textContent = cfg.trail.toFixed(2); });
+
+  $('scatter').addEventListener('click', () => {
+    for (let i = 0; i < N; i++) { const a = Math.random() * TAU; const s = cfg.maxSpeedS * (1 + Math.random());
+      vx[i] = Math.cos(a) * s; vy[i] = Math.sin(a) * s; } });
+  $('save').addEventListener('click', () => { const a = document.createElement('a');
+    a.download = `latent-murmuration-${Date.now()}.png`; a.href = cv.toDataURL('image/png'); a.click(); });
+  $('play').addEventListener('click', togglePlay);
+  $('fs').addEventListener('click', toggleFullscreen);
+  function togglePlay() { playing = !playing;
+    $('play-icon').innerHTML = playing ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>' : '<path d="M7 4l13 8-13 8z"/>';
+    if (playing) frame(); }
+  addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key.toLowerCase() === 'r') $('scatter').click();
+    else if (e.key.toLowerCase() === 's') $('save').click();
+    else if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    else if (e.key.toLowerCase() === 'h') $('panel').classList.toggle('hidden');
+  });
+  cv.addEventListener('pointermove', (e) => { mouse.x = e.clientX * DPR; mouse.y = e.clientY * DPR; mouse.on = true; });
+  cv.addEventListener('pointerleave', () => mouse.on = false);
+  Studio.visibilityGate(() => { if (playing) frame(); }, () => {});
+
+  // ---- go ---------------------------------------------------------------
+  resize(); alloc(); rebuildGrid(); frame();
+})();
+</script>
+</body>
+</html>
