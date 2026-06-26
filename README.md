@@ -1,4 +1,5 @@
 <!-- ───────────────────────────────  LATENT  ─────────────────────────────── -->
+Claude code thinking im not doing anything just let claude code do what it wants
 
 <div align="center">
 
